@@ -1,0 +1,62 @@
+---
+title: "Report"
+author: "Hemodynamic Simulator"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+params: 
+    theta1: NA
+    theta2: NA
+    pk: NA
+    hr: NA
+    co: NA
+    p: NA
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gridExtra)
+```
+#1. Model information
+
+![](/srv/shiny-server/www/Snelder2014.png)
+$$
+\begin{aligned}
+\rm{\frac{dHR}{dt}} & =  \rm{K_{in\_{HR}}\cdot(1+{CR}_{HR})\cdot(1-FB\cdot{MAP})\cdot(1+EFF)-k_{out\_HR}\cdot{HR}}\\
+\rm{\frac{dSV_T}{dt}} & =  \rm{K_{in\_{SV}}\cdot(1-FB\cdot{MAP})\cdot(1+EFF)-k_{out\_SV}\cdot{SV_T}}\\
+\rm{\frac{dTPR}{dt}}  & =  \rm{K_{in\_{TPR}}\cdot(1+{CR}_{TPR})\cdot(1-FB\cdot{MAP})\cdot(1+EFF)-k_{out\_TPR}\cdot{TPR}}\\
+\rm{SV} & = \rm{SV_T\times\left[1-HR\_SV\times{LN}(HR/BSL\_HR)\right]}\\
+\rm{CO} & = \rm{HR \cdot{SV}}\\
+\rm{MAP} & = \rm{CO\cdot{TPR}}\\
+\rm{{CR}_{HR}} & = \rm{amp_{HR}\cdot{cos}\left(\frac{2\pi\cdot(t+hor_{HR})}{24}\right)}\\
+\rm{{CR}_{TPR}} & = \rm{amp_{TPR}\cdot{cos}\left(\frac{2\pi\cdot(t+hor_{TPR})}{24}\right)}
+\end{aligned}
+$$
+[[1] Snelder, N. et al. Br J Pharmacol (2014)](https://bpspubs.onlinelibrary.wiley.com/doi/full/10.1111/bph.12824)    
+
+## Parameters for Reference Drug
+```{r echo=FALSE}
+params$theta2
+```
+## Parameters for Investigational Drug
+```{r echo=FALSE}
+params$theta1
+```
+#2. A plot of PK, HR, CO and MAP vs. time.
+
+```{r plot,echo=FALSE}
+axisset2 <- theme(axis.title.x=element_text(face='bold',size=10),
+                  axis.title.y=element_text(face='bold',size=10),
+                  axis.text.x=element_text(face='bold',size=6,color='black'),
+                  axis.text.y=element_text(face='bold',size=6,color='black'))+
+            theme(legend.justification=c(1,1), legend.position=c(0.98,0.98), legend.title=element_blank())+
+            theme(panel.grid =element_blank())
+
+pk <- params$pk + axisset2
+hr <- params$hr + axisset2
+co <- params$co + axisset2
+p <- params$p + axisset2
+
+grid.arrange(pk, hr, co, p, nrow = 2)
+
+```
